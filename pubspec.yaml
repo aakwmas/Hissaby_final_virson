@@ -27,9 +27,6 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
-  # إدارة الحالة (اختياري لكن مفيد)
-  provider: ^6.0.5
-
   # للتعامل مع الصور والملفات
   file_picker: ^8.0.0
   image_picker: ^1.0.7
