@@ -1,4 +1,4 @@
-name: Flutter Build
+name: Flutter Build APK
 
 on:
   push:
@@ -9,30 +9,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # استنساخ المستودع
       - uses: actions/checkout@v4
 
+      # إعداد Java 17 المطلوبة لبناء Gradle
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
+      # تثبيت Flutter
       - uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
+          channel: stable
 
-      # إنشاء هيكل مشروع جديد ثم نسخ ملفاتك فوقه
+      # إنشاء مشروع Flutter مؤقت ونسخ ملفاتك داخله
       - run: |
           flutter create temp_app
-          cp -r lib temp_app/
+          cp -r lib/* temp_app/lib/
           cp pubspec.yaml temp_app/
-          cp -r assets temp_app/ || true
+          # نسخ مجلد assets فقط إذا موجود
+          if [ -d "assets" ]; then cp -r assets temp_app/; fi
           mv temp_app/* .
           mv temp_app/.* . || true
 
+      # تحميل المكتبات
       - run: flutter pub get
+
+      # بناء APK للإصدار النهائي
       - run: flutter build apk --release
 
-      - name: رفع ملف APK
+      # رفع ملف APK كـ artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
