@@ -9,40 +9,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # استنساخ المستودع
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      # إعداد Java 17 المطلوبة لبناء Gradle
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '17'
 
-      # تثبيت Flutter
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: stable
 
-      # إنشاء مشروع Flutter مؤقت لتصحيح Gradle
-      - run: |
-          flutter create temp_app
+    - run: flutter pub get
 
-          # نسخ الملفات من مشروعك للمشروع المؤقت
-          cp -r lib/* temp_app/lib/
-          cp pubspec.yaml temp_app/
-          if [ -d "assets" ]; then cp -r assets temp_app/; fi
+    - run: flutter build apk --release
 
-          # لا نستخدم mv للمجلدات لتجنب استبدال lib
-
-      # تحميل المكتبات
-      - run: flutter pub get --project=temp_app
-
-      # بناء APK للإصدار النهائي
-      - run: flutter build apk --release --project=temp_app
-
-      # رفع ملف APK كـ artifact
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: temp_app/build/app/outputs/flutter-apk/app-release.apk
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release
+        path: build/app/outputs/flutter-apk/app-release.apk
+```
