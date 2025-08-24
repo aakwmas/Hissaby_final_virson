@@ -1,60 +1,35 @@
-name: hisabi
-description: تطبيق محاسبي شخصي (حسابي) لتتبع الدخل والمصروفات والأصول والخصوم.
+name: Flutter Build
 
-publish_to: 'none' 
+on:
+  push:
+    branches: [ "main" ]
 
-version: 1.0.0+1
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-environment:
-  sdk: ">=3.0.0 <4.0.0"
+    steps:
+      - uses: actions/checkout@v4
 
-dependencies:
-  flutter:
-    sdk: flutter
+      # جافا 17 ضرورية لـ AGP 8+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
-  # إدارة الحالة
-  provider: ^6.0.5
+      # آخر قناة مستقرة من Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
 
-  # أيقونات
-  cupertino_icons: ^1.0.6
+      # إصلاح هيكل المشروع وملفات Gradle داخل نفس المجلد
+      - run: flutter create .
 
-  # الرسوم البيانية (مكتبة حديثة ومدعومة)
-  fl_chart: ^0.66.2
+      - run: flutter pub get
+      - run: flutter build apk --release
 
-  # للتواريخ
-  intl: ^0.19.0
-
-  # لحفظ البيانات محليًا
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-
-  # للتعامل مع الصور والملفات
-  file_picker: ^8.0.0
-  image_picker: ^1.0.7
-
-  # للتنبيهات المحلية
-  flutter_local_notifications: ^16.2.0
-
-  # لدعم تعدد اللغات و RTL
-  flutter_localizations:
-    sdk: flutter
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  hive_generator: ^2.0.1
-  build_runner: ^2.4.6
-
-flutter:
-  uses-material-design: true
-
-  assets:
-    - assets/icons/
-    - assets/images/
-
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
+      - name: رفع ملف APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
